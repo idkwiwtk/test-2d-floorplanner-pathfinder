@@ -10,6 +10,9 @@ interface GridCanvasProps {
   end: GridPosition | null;
   path: GridPosition[];
   onCellClick: (pos: GridPosition) => void;
+  onCellMouseDown: (pos: GridPosition) => void;
+  onCellMouseEnter: (pos: GridPosition) => void;
+  onMouseUp: () => void;
 }
 
 function getCellColor(
@@ -31,6 +34,9 @@ export default function GridCanvas({
   end,
   path,
   onCellClick,
+  onCellMouseDown,
+  onCellMouseEnter,
+  onMouseUp,
 }: GridCanvasProps) {
   const rows = grid.length;
   const cols = grid[0]?.length ?? 0;
@@ -40,7 +46,7 @@ export default function GridCanvas({
   const pathSet = new Set(path.map((p) => `${p.row},${p.col}`));
 
   return (
-    <Stage width={width} height={height}>
+    <Stage width={width} height={height} onMouseUp={onMouseUp} onTouchEnd={onMouseUp}>
       <Layer>
         {grid.map((row, r) =>
           row.map((cell, c) => (
@@ -55,6 +61,8 @@ export default function GridCanvas({
               strokeWidth={0.5}
               onClick={() => onCellClick({ row: r, col: c })}
               onTap={() => onCellClick({ row: r, col: c })}
+              onMouseDown={() => onCellMouseDown({ row: r, col: c })}
+              onMouseEnter={() => onCellMouseEnter({ row: r, col: c })}
             />
           )),
         )}

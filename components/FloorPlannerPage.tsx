@@ -1,11 +1,20 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Cell, GridPosition, InteractionMode } from '@/lib/types';
+import { useState, useCallback, useRef } from 'react';
+import { Cell, CellType, GridPosition, InteractionMode } from '@/lib/types';
 import { createSampleGrid } from '@/lib/grid';
 import { findPath } from '@/lib/pathfinding';
 import GridCanvas from './GridCanvas';
 import ControlPanel from './ControlPanel';
+
+function updateCell(grid: Cell[][], pos: GridPosition, type: CellType): Cell[][] {
+  return grid.map((row, r) =>
+    row.map((c, col) => {
+      if (r !== pos.row || col !== pos.col) return c;
+      return { ...c, type };
+    }),
+  );
+}
 
 export default function FloorPlannerPage() {
   const [grid, setGrid] = useState<Cell[][]>(() => createSampleGrid());
@@ -14,10 +23,15 @@ export default function FloorPlannerPage() {
   const [path, setPath] = useState<GridPosition[]>([]);
   const [mode, setMode] = useState<InteractionMode>('setStart');
 
+  const isDrawing = useRef(false);
+  const paintType = useRef<CellType>('wall');
+
   const handleCellClick = useCallback(
     (pos: GridPosition) => {
+      if (mode === 'toggleWall' || mode === 'toggleDoor') return;
+
       const cell = grid[pos.row][pos.col];
-      if (cell.type === 'wall' && mode !== 'toggleWall') return;
+      if (cell.type === 'wall') return;
 
       switch (mode) {
         case 'setStart':
@@ -28,24 +42,41 @@ export default function FloorPlannerPage() {
           setEnd(pos);
           setPath([]);
           break;
-        case 'toggleWall':
-          setGrid((prev) =>
-            prev.map((row, r) =>
-              row.map((c, col) => {
-                if (r !== pos.row || col !== pos.col) return c;
-                return {
-                  ...c,
-                  type: c.type === 'wall' ? 'empty' : 'wall',
-                };
-              }),
-            ),
-          );
-          setPath([]);
-          break;
       }
     },
     [grid, mode],
   );
+
+  const handleCellMouseDown = useCallback(
+    (pos: GridPosition) => {
+      if (mode !== 'toggleWall' && mode !== 'toggleDoor') return;
+
+      isDrawing.current = true;
+      const cell = grid[pos.row][pos.col];
+
+      if (mode === 'toggleWall') {
+        paintType.current = cell.type === 'wall' ? 'empty' : 'wall';
+      } else {
+        paintType.current = cell.type === 'door' ? 'empty' : 'door';
+      }
+
+      setGrid((prev) => updateCell(prev, pos, paintType.current));
+      setPath([]);
+    },
+    [grid, mode],
+  );
+
+  const handleCellMouseEnter = useCallback(
+    (pos: GridPosition) => {
+      if (!isDrawing.current) return;
+      setGrid((prev) => updateCell(prev, pos, paintType.current));
+    },
+    [],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    isDrawing.current = false;
+  }, []);
 
   const handleFindPath = useCallback(() => {
     if (!start || !end) return;
@@ -84,6 +115,9 @@ export default function FloorPlannerPage() {
           end={end}
           path={path}
           onCellClick={handleCellClick}
+          onCellMouseDown={handleCellMouseDown}
+          onCellMouseEnter={handleCellMouseEnter}
+          onMouseUp={handleMouseUp}
         />
       </div>
 

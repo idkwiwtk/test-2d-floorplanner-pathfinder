@@ -16,6 +16,7 @@ const MODE_LABELS: Record<InteractionMode, string> = {
   setStart: '출발점 설정',
   setEnd: '도착점 설정',
   toggleWall: '벽 토글',
+  toggleDoor: '문 토글',
 };
 
 export default function ControlPanel({

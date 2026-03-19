@@ -19,4 +19,4 @@ export interface PathNode {
   parent: PathNode | null;
 }
 
-export type InteractionMode = 'setStart' | 'setEnd' | 'toggleWall';
+export type InteractionMode = 'setStart' | 'setEnd' | 'toggleWall' | 'toggleDoor';
