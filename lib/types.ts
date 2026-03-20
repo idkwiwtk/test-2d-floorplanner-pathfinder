@@ -19,4 +19,21 @@ export interface PathNode {
   parent: PathNode | null;
 }
 
-export type InteractionMode = 'setStart' | 'setEnd' | 'toggleWall' | 'toggleDoor';
+export interface PlacedObject {
+  id: string;
+  row: number;
+  col: number;
+  widthCells: number;
+  heightCells: number;
+  label: string;
+  color: string;
+}
+
+export interface ObjectTemplate {
+  label: string;
+  widthCells: number;
+  heightCells: number;
+  color: string;
+}
+
+export type InteractionMode = 'setStart' | 'setEnd' | 'toggleWall' | 'toggleDoor' | 'placeObject' | 'editObject';

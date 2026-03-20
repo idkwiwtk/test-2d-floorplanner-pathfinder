@@ -10,3 +10,12 @@ export const CELL_COLORS: Record<string, string> = {
   end: '#ef4444',
   path: '#3b82f6',
 };
+
+export const OBJECT_TEMPLATES = [
+  { label: 'Table', widthCells: 3, heightCells: 2, color: '#a0522d' },
+  { label: 'Desk', widthCells: 2, heightCells: 1, color: '#6b8e23' },
+  { label: 'Sofa', widthCells: 4, heightCells: 2, color: '#4682b4' },
+  { label: 'Chair', widthCells: 1, heightCells: 1, color: '#daa520' },
+] as const;
+
+export const PREVIEW_OPACITY = 0.4;

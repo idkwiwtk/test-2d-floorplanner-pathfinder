@@ -1,4 +1,5 @@
-import { Cell, GridPosition, PathNode } from './types';
+import { Cell, GridPosition, PathNode, PlacedObject } from './types';
+import { buildObjectCellSet } from './collision';
 
 const DIRECTIONS = [
   { dr: -1, dc: 0 },
@@ -19,9 +20,11 @@ export function findPath(
   grid: Cell[][],
   start: GridPosition,
   end: GridPosition,
+  objects: PlacedObject[] = [],
 ): GridPosition[] | null {
   const rows = grid.length;
   const cols = grid[0].length;
+  const objectCells = buildObjectCellSet(objects);
 
   const closed = new Set<string>();
   const open: PathNode[] = [];
@@ -59,6 +62,7 @@ export function findPath(
 
       if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
       if (grid[nr][nc].type === 'wall') continue;
+      if (objectCells.has(`${nr},${nc}`)) continue;
 
       const nk = key({ row: nr, col: nc });
       if (closed.has(nk)) continue;
